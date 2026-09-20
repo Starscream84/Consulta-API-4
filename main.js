@@ -22,8 +22,14 @@ async function cargarCaso(caso) {
  
         const { media, lsc, lic, valores } = json.data[0];
         const sigma = (lsc - media) / 3; // 3 sigma = distancia hasta LSC/LIC
+
+        // calculo de los sigmas
+        const lim1Sup = media + sigma;
+        const lim2Sup = media + 2 * sigma;
+        const lim1Inf = media - sigma;
+        const lim2Inf = media - 2 * sigma;
  
-        dibujarGrafico(valores, media, lsc, lic);
+        dibujarGrafico(valores, media, lsc, lic, lim1Sup, lim2Sup, lim1Inf, lim2Inf);
         const anomalias = analizarDatos(valores, media, lsc, lic, sigma);
         mostrarAlertas(anomalias);
         llenarTabla(valores, anomalias);
@@ -33,7 +39,7 @@ async function cargarCaso(caso) {
     }
 }
  
-function dibujarGrafico(valores, media, lsc, lic) {
+function dibujarGrafico(valores, media, lsc, lic, lim1Sup, lim2Sup, lim1Inf, lim2Inf) {
     const labels = valores.map((v) => v.x);
     const datos = valores.map((v) => v.y);
     const n = labels.length;
@@ -63,7 +69,7 @@ function dibujarGrafico(valores, media, lsc, lic) {
                     fill: false,
                 },
                 {
-                    label: "LSC",
+                    label: "LSC (+3σ)",
                     data: new Array(n).fill(lsc),
                     borderColor: "#e15759",
                     borderDash: [4, 4],
@@ -71,7 +77,43 @@ function dibujarGrafico(valores, media, lsc, lic) {
                     fill: false,
                 },
                 {
-                    label: "LIC",
+                    label: "+2σ",
+                    data: new Array(n).fill(lim2Sup),
+                    borderColor: "#f28e2b", // Tono naranja
+                    borderDash: [2, 4],
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    fill: false,
+                },
+                {
+                    label: "+1σ",
+                    data: new Array(n).fill(lim1Sup),
+                    borderColor: "#edc949", // Tono amarillo suave
+                    borderDash: [2, 4],
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    fill: false,
+                },
+                {
+                    label: "-1σ",
+                    data: new Array(n).fill(lim1Inf),
+                    borderColor: "#edc949",
+                    borderDash: [2, 4],
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    fill: false,
+                },
+                {
+                    label: "-2σ",
+                    data: new Array(n).fill(lim2Inf),
+                    borderColor: "#f28e2b",
+                    borderDash: [2, 4],
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    fill: false,
+                },
+                {
+                    label: "LIC (-3σ)",
                     data: new Array(n).fill(lic),
                     borderColor: "#e15759",
                     borderDash: [4, 4],
@@ -83,7 +125,7 @@ function dibujarGrafico(valores, media, lsc, lic) {
         options: {
             maintainAspectRatio: false,
             plugins: {
-                title: { display: true, text: "Gráfico de control" },
+                title: { display: true, text: "Gráfico de control con zona de sigma" },
             },
             scales: {
                 x: { title: { display: true, text: "Muestreo (X)" } },
