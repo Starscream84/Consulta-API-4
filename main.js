@@ -12,7 +12,11 @@ document.addEventListener("DOMContentLoaded", () => cargarCaso(1));
  
 async function cargarCaso(caso) {
     try {
-        const res = await fetch(`${API_BASE}/${caso}`);
+        const res = await fetch(`${API_BASE}/${caso}`, {cache: "no-store"});
+        if (!res.ok) {
+        mostrarAlertas([], `Error ${res.status} al consultar la API.`);
+        return;
+        }
         const json = await res.json();
  
         if (!json.success) {
