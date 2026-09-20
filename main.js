@@ -50,6 +50,24 @@ function dibujarGrafico(valores, media, lsc, lic, lim1Sup, lim2Sup, lim1Inf, lim
  
     const ctx = document.getElementById("graficoControl");
     if (chart) chart.destroy();
+
+    const crearLineaConEtiqueta = (valor, texto, color, dash = [2, 4]) => ({
+        type: 'line',
+        yMin: valor,
+        yMax: valor,
+        borderColor: color,
+        borderWidth: 1.5,
+        borderDash: dash,
+        label: {
+            display: true,
+            content: texto,
+            position: 'end', 
+            backgroundColor: 'transparent',
+            color: color,
+            font: { size: 10, weight: 'bold' },
+            xAdjust: 50 
+        }
+    });
  
     chart = new Chart(ctx, {
         type: "line",
@@ -81,7 +99,7 @@ function dibujarGrafico(valores, media, lsc, lic, lim1Sup, lim2Sup, lim1Inf, lim
                     fill: false,
                 },
                 {
-                    label: "+2σ",
+                    label: "Sigma 2",
                     data: new Array(n).fill(lim2Sup),
                     borderColor: "#f28e2b", // Tono naranja
                     borderDash: [2, 4],
@@ -90,7 +108,7 @@ function dibujarGrafico(valores, media, lsc, lic, lim1Sup, lim2Sup, lim1Inf, lim
                     fill: false,
                 },
                 {
-                    label: "+1σ",
+                    label: "Sigma 1",
                     data: new Array(n).fill(lim1Sup),
                     borderColor: "#edc949", // Tono amarillo suave
                     borderDash: [2, 4],
@@ -99,7 +117,7 @@ function dibujarGrafico(valores, media, lsc, lic, lim1Sup, lim2Sup, lim1Inf, lim
                     fill: false,
                 },
                 {
-                    label: "-1σ",
+                    label: "Sigma -1",
                     data: new Array(n).fill(lim1Inf),
                     borderColor: "#edc949",
                     borderDash: [2, 4],
@@ -108,7 +126,7 @@ function dibujarGrafico(valores, media, lsc, lic, lim1Sup, lim2Sup, lim1Inf, lim
                     fill: false,
                 },
                 {
-                    label: "-2σ",
+                    label: "Sigma -2",
                     data: new Array(n).fill(lim2Inf),
                     borderColor: "#f28e2b",
                     borderDash: [2, 4],
@@ -128,8 +146,30 @@ function dibujarGrafico(valores, media, lsc, lic, lim1Sup, lim2Sup, lim1Inf, lim
         },
         options: {
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    right: 85
+                }
+            },
             plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
                 title: { display: true, text: "Gráfico de control con zona de sigma" },
+
+                annotation: {
+                    clip:false,
+                    annotations: {
+                        lineaLSC: crearLineaConEtiqueta(lsc, "LSC (+3σ)", "#e15759", [4, 4]),
+                        linea2Sup: crearLineaConEtiqueta(lim2Sup, "Sigma 2", "#f28e2b"),
+                        linea1Sup: crearLineaConEtiqueta(lim1Sup, "Sigma 1", "#edc949"),
+                        lineaMedia: crearLineaConEtiqueta(media, "Media (LC)", "#59a14f", [6, 4]),
+                        linea1Inf: crearLineaConEtiqueta(lim1Inf, "Sigma -1", "#edc949"),
+                        linea2Inf: crearLineaConEtiqueta(lim2Inf, "Sigma -2", "#f28e2b"),
+                        lineaLIC: crearLineaConEtiqueta(lic, "LIC (-3σ)", "#e15759", [4, 4]),
+                    }
+                }
             },
             scales: {
                 x: { title: { display: true, text: "Muestreo (X)" } },
