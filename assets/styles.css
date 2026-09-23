@@ -34,6 +34,14 @@ main {
     padding: 0 1rem;
 }
 
+footer {
+    p {
+        text-align: center;
+        font-size: 10px;
+        opacity: 50%;
+    }
+}
+
 .controls {
     display: flex;
     gap: 1rem;

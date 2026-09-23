@@ -188,9 +188,7 @@ function dibujarGrafico(valores, media, lsc, lic, sigma, anomalias) {
     });
 }
 
-// ---------------------------------------------------------------------------
-// Análisis estadístico (reglas de Western Electric)
-// ---------------------------------------------------------------------------
+// Análisis estadístico
 
 /**
  * Devuelve de qué lado de la línea central está un valor:
