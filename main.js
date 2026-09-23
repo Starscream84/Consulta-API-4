@@ -5,7 +5,8 @@
  *   1. Consulta la API del caso elegido (1 a 5) con fetch (GET).
  *   2. Calcula sigma (σ) a partir de los límites de control que manda la API.
  *   3. Dibuja el gráfico de control con Chart.js: variable, línea central,
- *      LSC/LIC y las zonas de ±1σ y ±2σ.
+ *      LSC/LIC y las zonas de ±1σ y ±2σ, con etiquetas al costado
+ *      (plugin chartjs-plugin-annotation).
  *   4. Aplica las reglas de Western Electric para detectar anomalías.
  *   5. Muestra alertas de texto y una tabla con el estado de cada muestra.
  */
@@ -55,7 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
  */
 async function cargarCaso(caso) {
     try {
-        const res = await fetch(`${API_BASE}/${caso}`);
+        // cache: "no-store" evita que el navegador reutilice una respuesta vieja
+        const res = await fetch(`${API_BASE}/${caso}`, { cache: "no-store" });
 
         // res.ok es false si la API responde con un error HTTP (404, 500, etc.)
         if (!res.ok) {
@@ -144,6 +146,29 @@ function dibujarGrafico(valores, media, lsc, lic, sigma, anomalias) {
         fill: false,
     });
 
+    /*
+     * Etiquetas al costado derecho del gráfico (plugin chartjs-plugin-annotation).
+     * Cada anotación es una línea horizontal en y = valor con un texto al final,
+     * así se lee directamente qué representa cada línea sin mirar la leyenda.
+     */
+    const lineaConEtiqueta = (valor, texto, color, dash = [2, 4]) => ({
+        type: "line",
+        yMin: valor,
+        yMax: valor,
+        borderColor: color,
+        borderWidth: 1.5,
+        borderDash: dash,
+        label: {
+            display: true,
+            content: texto,
+            position: "end",
+            backgroundColor: "transparent",
+            color: color,
+            font: { size: 10, weight: "bold" },
+            xAdjust: 58, // corre la etiqueta hacia la derecha, fuera del área de datos
+        },
+    });
+
     chart = new Chart(ctx, {
         type: "line",
         data: {
@@ -171,9 +196,23 @@ function dibujarGrafico(valores, media, lsc, lic, sigma, anomalias) {
         },
         options: {
             maintainAspectRatio: false,
+            // Espacio a la derecha para que entren las etiquetas de las anotaciones
+            layout: { padding: { right: 70 } },
             plugins: {
-                title: { display: true, text: "Gráfico de control" },
+                title: { display: true, text: "Gráfico de control con zonas de sigma" },
                 legend: { labels: { boxWidth: 20, font: { size: 11 } } },
+                annotation: {
+                    clip: false, // permite dibujar las etiquetas fuera del área del gráfico
+                    annotations: {
+                        lineaLSC: lineaConEtiqueta(lsc, `LSC ${lsc}`, COLORES.limites, [4, 4]),
+                        linea2Sup: lineaConEtiqueta(media + 2 * sigma, "+2σ", COLORES.sigma2),
+                        linea1Sup: lineaConEtiqueta(media + sigma, "+1σ", COLORES.sigma1),
+                        lineaMedia: lineaConEtiqueta(media, `LC ${media}`, COLORES.media, [6, 4]),
+                        linea1Inf: lineaConEtiqueta(media - sigma, "-1σ", COLORES.sigma1),
+                        linea2Inf: lineaConEtiqueta(media - 2 * sigma, "-2σ", COLORES.sigma2),
+                        lineaLIC: lineaConEtiqueta(lic, `LIC ${lic}`, COLORES.limites, [4, 4]),
+                    },
+                },
             },
             scales: {
                 x: { title: { display: true, text: "Muestreo (X)" } },

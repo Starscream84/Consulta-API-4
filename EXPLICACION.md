@@ -15,8 +15,7 @@ Consulta a API 4/
 ├── EXPLICACION.md      → Este documento
 └── assets/
     ├── variable.css    → Variables CSS (tipografías)
-    ├── styles.css      → Estilos de la página
-    └── styles2.css     → (no se usa en este TP)
+    └── styles.css      → Estilos de la página
 ```
 
 Para verlo, alcanza con abrir `index.html` en el navegador (requiere conexión a internet para la API y para Chart.js).
@@ -84,7 +83,9 @@ Tiene cuatro partes dentro de `<main>`:
 3. **`#alertas`**: contenedor vacío que JavaScript llena con los mensajes. Tiene `aria-live="polite"` para que los lectores de pantalla anuncien los cambios.
 4. **`#tablaDatos`**: tabla con X, Y y el estado de cada muestra. El `<tbody>` se llena desde JavaScript.
 
-En el `<head>` se cargan los CSS y **Chart.js 4.4.1** desde jsDelivr. `main.js` se carga al final del `<body>` para que los elementos ya existan cuando se ejecuta.
+Después de `<main>` hay un `<footer>` con los integrantes del grupo.
+
+En el `<head>` se cargan los CSS, **Chart.js 4.4.1** y **chartjs-plugin-annotation 3.0.1** (para las etiquetas al costado de las líneas), ambos desde jsDelivr. `main.js` se carga al final del `<body>` para que los elementos ya existan cuando se ejecuta.
 
 ---
 
@@ -121,7 +122,7 @@ cargarCaso(caso) ──fetch──▶ API
 
 Es una función `async` que:
 
-1. Hace `fetch` (GET) a `API_BASE/caso`.
+1. Hace `fetch` (GET) a `API_BASE/caso` con `cache: "no-store"`, para que el navegador no reutilice una respuesta guardada.
 2. Verifica `res.ok`. Si la API responde con un error HTTP, lanza una excepción.
 3. Convierte la respuesta a JSON y verifica `success` y que `data` tenga contenido.
 4. Desestructura `media`, `lsc`, `lic` y `valores` de `json.data[0]`.
@@ -140,9 +141,12 @@ Todo está dentro de un `try/catch`: si falla la red o el JSON, se muestra una a
   - naranja y más grande → tendencia;
   - azul → normal.
 - `referencia(label, valor, color, dash)` es una función auxiliar que devuelve la configuración de una línea punteada sin puntos.
+- `lineaConEtiqueta(valor, texto, color, dash)` arma una **anotación** del plugin `chartjs-plugin-annotation`: una línea horizontal en `y = valor` con un texto al final (`LSC 99`, `+2σ`, `+1σ`, `LC 90`, `-1σ`, `-2σ`, `LIC 81`).
+  - `position: "end"` y `xAdjust: 58` ubican la etiqueta a la derecha, fuera del área de datos.
+  - `clip: false` permite dibujar fuera del área del gráfico y `layout.padding.right: 70` reserva ese espacio.
 - `suggestedMin` y `suggestedMax` dejan un margen de 1σ por fuera de LIC y LSC para que las líneas no queden pegadas al borde.
 
-Líneas que se dibujan: Variable, Media (LC), LSC, LIC, ±2σ y ±1σ.
+Líneas que se dibujan: Variable, Media (LC), LSC, LIC, ±2σ y ±1σ. Las de referencia aparecen en la leyenda (arriba) y además tienen su etiqueta con el valor al costado.
 
 ### 4.6 `analizarDatos(valores, media, lsc, lic, sigma)`
 
@@ -214,6 +218,7 @@ Importa las fuentes **Roboto** y **Lato** de Google Fonts y define las variables
 - **Layout:** `main` centrado con `max-width: 900px`; `.controls` con `flex` y `flex-wrap` para que se acomode en pantallas chicas.
 - **Gráfico:** `.chart-container` con altura fija (420 px; 320 px en celulares, mediante `@media`). Chart.js necesita esa altura porque se usa `maintainAspectRatio: false`.
 - **Alertas:** `.alerta-ok` (verde), `.alerta-warning` (amarillo) y `.alerta-error` (rojo).
+- **Footer:** texto centrado, chico y semitransparente.
 - **Tabla:** encabezado azul, filas separadas por un borde fino, y las clases `.fila-alerta` y `.fila-tendencia`.
 
 ---
