@@ -4,9 +4,10 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>TP4 - Gráficos de Control</title>
-        <link rel="stylesheet" href="./assets/styles.css" />
         <link rel="stylesheet" href="./assets/variable.css" />
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link rel="stylesheet" href="./assets/styles.css" />
+        <!-- Chart.js (versión 4 fija) para dibujar el gráfico -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     </head>
     <body>
         <header>
@@ -15,6 +16,7 @@
         </header>
 
         <main>
+            <!-- Selector del caso a consultar en la API -->
             <section class="controls">
                 <label for="caso">Seleccionar caso:</label>
                 <select id="caso">
@@ -27,12 +29,15 @@
                 <button id="btnCargar">Cargar</button>
             </section>
 
+            <!-- Gráfico de control -->
             <section class="chart-container">
                 <canvas id="graficoControl"></canvas>
             </section>
 
-            <section id="alertas" class="alertas"></section>
+            <!-- Alertas de texto generadas por main.js -->
+            <section id="alertas" class="alertas" aria-live="polite"></section>
 
+            <!-- Tabla con los valores y el estado de cada muestra -->
             <section class="datos">
                 <table id="tablaDatos">
                     <thead>
